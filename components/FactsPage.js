@@ -15,7 +15,7 @@ const FactsPage = () => {
     ];
 
 
-    // Function to fetch facts
+
     const fetchFacts = async () => {
         try {
             const fetchedFacts = [];
@@ -33,14 +33,14 @@ const FactsPage = () => {
 
     return (
         <View style={styles.container}>
-            {/* Fact Generator Header */}
+
             <Text style={styles.header}>Random Fact Generator</Text>
 
 
 
 
 
-            {/* Dropdown for Language */}
+
             <Text>Select language: </Text>
             <TouchableOpacity
                 style={styles.dropdownButton}
@@ -51,7 +51,7 @@ const FactsPage = () => {
                 </Text>
             </TouchableOpacity>
 
-            {/* Language Modal */}
+
             <Modal
                 visible={isLanguageModalVisible}
                 transparent={true}
@@ -76,14 +76,14 @@ const FactsPage = () => {
                 </View>
             </Modal>
 
-            {/* Amount of Jokes Label */}
+
             <Text style={styles.checkboxLabel}>Amount of jokes: </Text>
 
-            {/* Amount of Facts Circular Checkboxes */}
+
             <View style={styles.checkboxContainer}>
                 {[1, 2, 3].map((num) => (
                     <TouchableOpacity
-                        key={num} // Ensure each checkbox has a unique key
+                        key={num}
                         style={[styles.checkbox, amount === num && styles.checkedCheckbox]}
                         onPress={() => setAmount(num)}
                     >
