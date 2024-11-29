@@ -99,7 +99,7 @@ const FactsPage = () => {
                 <Text style={styles.generateButtonText}>Generate Facts</Text>
             </TouchableOpacity>
 
-            {/* Display Facts */}
+
             <FlatList
                 data={facts}
                 keyExtractor={(item, index) => item.text + index.toString()}
