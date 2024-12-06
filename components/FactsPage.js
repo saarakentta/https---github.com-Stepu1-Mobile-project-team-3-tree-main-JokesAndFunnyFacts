@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FontAwesome } from '@expo/vector-icons';
 
 const FactsPage = () => {
     const [language, setLanguage] = useState('en'); // Default language
@@ -7,39 +9,48 @@ const FactsPage = () => {
     const [facts, setFacts] = useState([]);
     const [isLanguageModalVisible, setLanguageModalVisible] = useState(false);
 
-    // Available languages 
+    // Available languages
     const languages = [
         { label: 'English', value: 'en' },
         { label: 'German', value: 'de' },
-
     ];
 
-
-
+    // Fetch random facts
     const fetchFacts = async () => {
         try {
             const fetchedFacts = [];
             for (let i = 0; i < amount; i++) {
                 const response = await fetch(`https://uselessfacts.jsph.pl/random.json?language=${language}`);
                 const data = await response.json();
-                fetchedFacts.push({ text: data.text });
+                fetchedFacts.push({ text: data.text, id: `${data.id}-${i}` });
             }
             setFacts(fetchedFacts);
         } catch (error) {
             console.error('Error fetching facts:', error);
-            setFacts([{ text: 'Error fetching data. Please try again later.' }]);
+            setFacts([{ text: 'Error fetching data. Please try again later.', id: 'error' }]);
+        }
+    };
+
+    // Save a fact to favourites
+    const saveToFavourites = async (fact) => {
+        try {
+            const storedFavourites = await AsyncStorage.getItem('favourites');
+            const favourites = storedFavourites ? JSON.parse(storedFavourites) : [];
+            if (!favourites.some((f) => f.text === fact.text)) {
+                favourites.push(fact);
+                await AsyncStorage.setItem('favourites', JSON.stringify(favourites));
+                alert('Fact added to favourites!');
+            } else {
+                alert('Fact is already in favourites!');
+            }
+        } catch (error) {
+            console.error('Error saving to favourites:', error);
         }
     };
 
     return (
         <View style={styles.container}>
-
             <Text style={styles.header}>Random Fact Generator</Text>
-
-
-
-
-
 
             <Text>Select language: </Text>
             <TouchableOpacity
@@ -50,7 +61,6 @@ const FactsPage = () => {
                     {languages.find((lang) => lang.value === language)?.label || 'Select language'}
                 </Text>
             </TouchableOpacity>
-
 
             <Modal
                 visible={isLanguageModalVisible}
@@ -76,9 +86,7 @@ const FactsPage = () => {
                 </View>
             </Modal>
 
-
             <Text style={styles.checkboxLabel}>Amount of jokes: </Text>
-
 
             <View style={styles.checkboxContainer}>
                 {[1, 2, 3].map((num) => (
@@ -99,11 +107,17 @@ const FactsPage = () => {
                 <Text style={styles.generateButtonText}>Generate Facts</Text>
             </TouchableOpacity>
 
-
             <FlatList
                 data={facts}
-                keyExtractor={(item, index) => item.text + index.toString()}
-                renderItem={({ item }) => <Text style={styles.fact}>{item.text}</Text>}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                    <View style={styles.factContainer}>
+                        <Text style={styles.fact}>{item.text}</Text>
+                        <TouchableOpacity onPress={() => saveToFavourites(item)}>
+                            <FontAwesome name="star" size={24} color="#FFD700" />
+                        </TouchableOpacity>
+                    </View>
+                )}
                 ListEmptyComponent={<Text style={styles.noFacts}>No facts to display.</Text>}
             />
         </View>
@@ -118,7 +132,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         backgroundColor: '#fff',
         justifyContent: 'center',
-        paddingTop: 200,
+        paddingTop: 100,
     },
     header: {
         fontSize: 24,
@@ -128,7 +142,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         paddingBottom: 30,
     },
-
     dropdownButton: {
         borderWidth: 1,
         borderColor: '#ccc',
@@ -189,13 +202,19 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
-    fact: {
+    factContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         backgroundColor: '#f9f9f9',
         padding: 10,
         marginBottom: 10,
         borderRadius: 5,
+    },
+    fact: {
         color: '#000',
-        textAlign: 'center',
+        flex: 1,
+        marginRight: 10,
     },
     noFacts: {
         marginTop: 20,

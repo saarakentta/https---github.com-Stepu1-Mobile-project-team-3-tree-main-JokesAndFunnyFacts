@@ -6,6 +6,7 @@ import Favourites from './components/FavouritesPage';
 import Facts from './components/FactsPage';
 import Jokes from './components/JokesPage';
 import { useState } from 'react';
+import { FavouritesProvider } from '../context/FavouritesContext';
 
 const routes = [
   { key: 'home', title: 'Home', focusedIcon: 'home' },
@@ -25,6 +26,7 @@ export default function App() {
   });
 
   return (
+    <FavouritesProvider>
     <PaperProvider theme={MD3LightTheme}>
       <BottomNavigation
         navigationState={{ index, routes }}
@@ -32,5 +34,6 @@ export default function App() {
         renderScene={renderScene}
       />
     </PaperProvider>
+    </FavouritesProvider>
   );
 }
