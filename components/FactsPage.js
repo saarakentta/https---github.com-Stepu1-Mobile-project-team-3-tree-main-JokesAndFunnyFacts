@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesome } from '@expo/vector-icons';
+import { FavouritesContext } from '../context/FavouritesContext';
 
 const FactsPage = () => {
+    const { addFavourite } = useContext(FavouritesContext);
+
     const [language, setLanguage] = useState('en'); // Default language
-    const [amount, setAmount] = useState(0); // Default number of facts
+    const [amount, setAmount] = useState(1); // Default number of facts
     const [facts, setFacts] = useState([]);
     const [isLanguageModalVisible, setLanguageModalVisible] = useState(false);
 
@@ -15,7 +17,6 @@ const FactsPage = () => {
         { label: 'German', value: 'de' },
     ];
 
-    // Fetch random facts
     const fetchFacts = async () => {
         try {
             const fetchedFacts = [];
@@ -31,28 +32,17 @@ const FactsPage = () => {
         }
     };
 
-    // Save a fact to favourites
-    const saveToFavourites = async (fact) => {
-        try {
-            const storedFavourites = await AsyncStorage.getItem('favourites');
-            const favourites = storedFavourites ? JSON.parse(storedFavourites) : [];
-            if (!favourites.some((f) => f.text === fact.text)) {
-                favourites.push(fact);
-                await AsyncStorage.setItem('favourites', JSON.stringify(favourites));
-                alert('Fact added to favourites!');
-            } else {
-                alert('Fact is already in favourites!');
-            }
-        } catch (error) {
-            console.error('Error saving to favourites:', error);
-        }
+    const saveToFavourites = (fact) => {
+        addFavourite(fact); // Update context and AsyncStorage
+        alert('Fact saved to favourites!');
     };
 
     return (
         <View style={styles.container}>
             <Text style={styles.header}>Random Fact Generator</Text>
 
-            <Text>Select language: </Text>
+            {/* Language Selection */}
+            <Text>Select language:</Text>
             <TouchableOpacity
                 style={styles.dropdownButton}
                 onPress={() => setLanguageModalVisible(true)}
@@ -86,8 +76,8 @@ const FactsPage = () => {
                 </View>
             </Modal>
 
-            <Text style={styles.checkboxLabel}>Amount of jokes: </Text>
-
+            {/* Amount Selection */}
+            <Text style={styles.checkboxLabel}>Amount of facts:</Text>
             <View style={styles.checkboxContainer}>
                 {[1, 2, 3].map((num) => (
                     <TouchableOpacity
@@ -107,6 +97,7 @@ const FactsPage = () => {
                 <Text style={styles.generateButtonText}>Generate Facts</Text>
             </TouchableOpacity>
 
+            {/* Display Facts */}
             <FlatList
                 data={facts}
                 keyExtractor={(item) => item.id}

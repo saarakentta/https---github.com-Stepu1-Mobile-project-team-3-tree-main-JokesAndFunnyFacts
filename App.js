@@ -6,7 +6,7 @@ import Favourites from './components/FavouritesPage';
 import Facts from './components/FactsPage';
 import Jokes from './components/JokesPage';
 import { useState } from 'react';
-import { FavouritesProvider } from '../context/FavouritesContext';
+import { FavouritesProvider } from './context/FavouritesContext';
 
 const routes = [
   { key: 'home', title: 'Home', focusedIcon: 'home' },
