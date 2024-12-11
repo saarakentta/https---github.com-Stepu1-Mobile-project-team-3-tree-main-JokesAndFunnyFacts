@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { FavouritesContext } from '../context/FavouritesContext';
@@ -52,6 +52,11 @@ const JokesPage = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.header}>Random Joke Generator</Text>
+
+            <Image 
+        source={require('../assets/Jokeri.png')} 
+        style={styles.headerImage} 
+      />
 
             {/* Category Selection */}
             <Text>Select category:</Text>
@@ -250,4 +255,10 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         borderRadius: 5,
     },
+    headerImage: {
+        width: '100%', // Skaalaa kuvan leveyden
+        height: 120, // Korkeus 
+        resizeMode: 'contain', // Säilyttää mittasuhteet
+        marginBottom: 20,
+      },
 });

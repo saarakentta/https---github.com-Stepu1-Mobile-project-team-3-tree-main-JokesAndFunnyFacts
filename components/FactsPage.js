@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { FavouritesContext } from '../context/FavouritesContext';
 
@@ -40,6 +40,12 @@ const FactsPage = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.header}>Random Fact Generator</Text>
+
+             {/* Kuvan näyttäminen */}
+      <Image 
+        source={require('../assets/Einstein.png')} 
+        style={styles.headerImage} 
+      />
 
             {/* Language Selection */}
             <Text>Select language:</Text>
@@ -235,4 +241,10 @@ const styles = StyleSheet.create({
         color: '#000',
         textAlign: 'center',
     },
+    headerImage: {
+        width: '105%', // Skaalaa kuvan leveyden
+        height: 120, // Korkeus
+        resizeMode: 'contain', // Säilyttää mittasuhteet
+        marginBottom: 20,
+      },
 });
