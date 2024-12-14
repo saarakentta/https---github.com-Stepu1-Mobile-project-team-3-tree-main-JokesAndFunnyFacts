@@ -2,6 +2,18 @@ import React, { useState, useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { FavouritesContext } from '../context/FavouritesContext';
+import * as Sharing from 'expo-sharing';
+import { Share } from 'react-native';
+
+const shareFact = async (fact) => {
+    try {
+        await Share.share({
+            message: `Here's an interesting fact: ${fact.text}`,
+        });
+    } catch (error) {
+        console.error('Error sharing fact:', error);
+    }
+};
 
 const FactsPage = () => {
     const { addFavourite } = useContext(FavouritesContext);
@@ -105,18 +117,24 @@ const FactsPage = () => {
 
             {/* Display Facts */}
             <FlatList
-                data={facts}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <View style={styles.factContainer}>
-                        <Text style={styles.fact}>{item.text}</Text>
-                        <TouchableOpacity onPress={() => saveToFavourites(item)}>
-                            <FontAwesome name="star" size={24} color="#FFD700" />
-                        </TouchableOpacity>
-                    </View>
-                )}
-                ListEmptyComponent={<Text style={styles.noFacts}>No facts to display.</Text>}
-            />
+    data={facts}
+    keyExtractor={(item) => item.id}
+    renderItem={({ item }) => (
+        <View style={styles.factContainer}>
+            <Text style={styles.fact}>{item.text}</Text>
+            <View style={styles.iconContainer}>
+                <TouchableOpacity onPress={() => saveToFavourites(item)}>
+                    <FontAwesome name="star" size={24} color="#FFD700" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => shareFact(item)}>
+                    <FontAwesome name="share-alt" size={24} color="#6200ee" />
+                </TouchableOpacity>
+            </View>
+        </View>
+    )}
+    ListEmptyComponent={<Text style={styles.noFacts}>No facts to display.</Text>}
+/>
+
         </View>
     );
 };
@@ -247,4 +265,11 @@ const styles = StyleSheet.create({
         resizeMode: 'contain', // Säilyttää mittasuhteet
         marginBottom: 20,
       },
+      iconContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        gap: 15,
+    }
+    
 });

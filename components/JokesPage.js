@@ -1,8 +1,18 @@
 import React, { useState, useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, Image } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 import { FavouritesContext } from '../context/FavouritesContext';
+import { Share } from 'react-native';
+
+const shareJoke = async (joke) => {
+    try {
+      await Share.share({
+        message: `Here's a funny joke: ${joke.text}`,
+      });
+    } catch (error) {
+      console.error('Error sharing joke:', error);
+    }
+  };
 
 
 const JokesPage = () => {
@@ -116,18 +126,24 @@ const JokesPage = () => {
 
             {/* Display Jokes */}
             <FlatList
-                data={jokes}
-                keyExtractor={(item, index) => item.text + index.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.jokeContainer}>
-                        <Text style={styles.joke}>{item.text}</Text>
-                        <TouchableOpacity onPress={() => saveToFavourites(item)}>
-                            <Ionicons name="star-outline" size={24} color="#6200ee" />
-                        </TouchableOpacity>
-                    </View>
-                )}
-                ListEmptyComponent={<Text style={styles.noJokes}>No jokes to display.</Text>}
-            />
+  data={jokes}
+  keyExtractor={(item, index) => item.text + index.toString()}
+  renderItem={({ item }) => (
+    <View style={styles.jokeContainer}>
+      <Text style={styles.joke}>{item.text}</Text>
+      <View style={styles.iconContainer}>
+        <TouchableOpacity onPress={() => saveToFavourites(item)}>
+        <FontAwesome name="star" size={24} color="#FFD700" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => shareJoke(item)}>
+        <FontAwesome name="share-alt" size={24} color="#6200ee" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  )}
+  ListEmptyComponent={<Text style={styles.noJokes}>No jokes to display.</Text>}
+/>
+
         </View>
     );
 };
@@ -211,12 +227,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     joke: {
-        backgroundColor: '#f9f9f9',
-        padding: 10,
-        marginBottom: 10,
-        borderRadius: 5,
         color: '#000',
-        textAlign: 'center',
+        flex: 1, // Teksti skaalautuu käytettävissä olevaan tilaan
+        marginRight: 10, // Tilaa ikoneille
+        textAlign: 'left', // Tarvittaessa vasemmalle tasattu teksti
+        flexWrap: 'wrap', // Rivittää tekstin
     },
     noJokes: {
         marginTop: 20,
@@ -247,13 +262,13 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     jokeContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        flexDirection: 'row', // Aseta kaikki elementit riville
+        justifyContent: 'space-between', // Varmista tasainen jakautuminen
+        alignItems: 'center', // Kohdista ikonit pystysuunnassa keskelle
         backgroundColor: '#f9f9f9',
         padding: 10,
         marginBottom: 10,
-        borderRadius: 5,
+        borderRadius: 5,  
     },
     headerImage: {
         width: '100%', // Skaalaa kuvan leveyden
@@ -261,4 +276,10 @@ const styles = StyleSheet.create({
         resizeMode: 'contain', // Säilyttää mittasuhteet
         marginBottom: 20,
       },
+      iconContainer: {
+        flexDirection: 'row', // Aseta ikonit vierekkäin
+        alignItems: 'center', // Kohdista ikonit pystysuunnassa keskelle
+        justifyContent: 'flex-end', // Vie ikonit oikealle
+        gap: 15, // Lisää tilaa ikonien väliin
+    },    
 });
