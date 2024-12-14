@@ -2,7 +2,6 @@ import React, { useState, useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { FavouritesContext } from '../context/FavouritesContext';
-import * as Sharing from 'expo-sharing';
 import { Share } from 'react-native';
 
 const shareFact = async (fact) => {

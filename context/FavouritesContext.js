@@ -33,8 +33,18 @@ export const FavouritesProvider = ({ children }) => {
         }
     };
 
+    const removeFavourite = async (joke) => {
+        const updatedFavourites = favourites.filter((item) => item.text !== joke.text);
+        setFavourites(updatedFavourites);
+        try {
+            await AsyncStorage.setItem('favourites', JSON.stringify(updatedFavourites));
+        } catch (error) {
+            console.error('Error removing favourite:', error);
+        }
+    };
+
     return (
-        <FavouritesContext.Provider value={{ favourites, addFavourite }}>
+        <FavouritesContext.Provider value={{ favourites, addFavourite, removeFavourite }}>
             {children}
         </FavouritesContext.Provider>
     );

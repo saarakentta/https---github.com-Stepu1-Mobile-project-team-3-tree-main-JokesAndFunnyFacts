@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { FavouritesContext } from '../context/FavouritesContext';
+import { FontAwesome } from '@expo/vector-icons';
 
 const FavouritesPage = () => {
-    const { favourites } = useContext(FavouritesContext);
+    // Käytä useContextia komponentin sisällä
+    const { favourites, removeFavourite } = useContext(FavouritesContext);
 
     return (
         <View style={styles.container}>
@@ -15,7 +17,12 @@ const FavouritesPage = () => {
                     data={favourites}
                     keyExtractor={(item, index) => item.text + index}
                     renderItem={({ item }) => (
-                        <Text style={styles.joke}>{item.text}</Text>
+                        <View style={styles.jokeContainer}>
+                            <Text style={styles.jokeText}>{item.text}</Text>
+                            <TouchableOpacity onPress={() => removeFavourite(item)}>
+                                <FontAwesome name="trash" size={24} color="red" />
+                            </TouchableOpacity>
+                        </View>
                     )}
                 />
             )}
@@ -39,11 +46,18 @@ const styles = StyleSheet.create({
         color: '#888',
         textAlign: 'center',
     },
-    joke: {
+    jokeContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         backgroundColor: '#f9f9f9',
         padding: 10,
         marginBottom: 10,
         borderRadius: 5,
+    },
+    jokeText: {
+        flex: 1,
+        color: '#333',
     },
 });
 
