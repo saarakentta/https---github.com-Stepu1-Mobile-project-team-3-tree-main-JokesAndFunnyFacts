@@ -15,13 +15,13 @@ const Header = ({ title }) => {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#121212', // Tumma taustaväri
+    backgroundColor: '#121212', 
   },
   header: {
     backgroundColor: '#121212',
     paddingVertical: 15,
     paddingHorizontal: 20,
-    alignItems: 'center', // Keskittää otsikon
+    alignItems: 'center', 
   },
   headerTitle: {
     color: '#FFFFFF',
@@ -29,9 +29,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   bottomLine: {
-    height: 3, // Viivan paksuus
-    backgroundColor: '#333', // Viivan väri
-    width: '100%', // Viiva vie koko leveyden
+    height: 3,
+    backgroundColor: '#333', 
+    width: '100%', 
   },
   
 });

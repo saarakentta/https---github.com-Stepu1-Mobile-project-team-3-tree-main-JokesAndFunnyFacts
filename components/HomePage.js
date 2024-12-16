@@ -8,13 +8,13 @@ import { FontAwesome } from '@expo/vector-icons';
 export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
-  const [resultTitleColor, setResultTitleColor] = useState('#FF8C42'); // Oletusväri oranssi
+  const [resultTitleColor, setResultTitleColor] = useState('#FF8C42');
   const { addFavourite } = useContext(FavouritesContext);
 
   // Hae satunnainen vitsi
   const fetchRandomJoke = async () => {
     setLoading(true);
-    setResultTitleColor('#5DAE5D'); // Vihreä väri vitseille
+    setResultTitleColor('#5DAE5D'); 
     try {
       const response = await fetch('https://v2.jokeapi.dev/joke/Any');
       const data = await response.json();
@@ -29,7 +29,7 @@ export default function HomePage() {
   // Hae satunnainen fakta
   const fetchRandomFact = async () => {
     setLoading(true);
-    setResultTitleColor('#FF8C42'); // Oranssi väri faktoille
+    setResultTitleColor('#FF8C42'); 
     try {
       const response = await fetch('https://uselessfacts.jsph.pl/random.json?language=en');
       const data = await response.json();

@@ -19,7 +19,6 @@ const routes = [
 export default function App() {
   const [index, setIndex] = useState(0);
 
-  // Lazy renderointi: renderöi vain aktiivinen näkymä
   const renderScene = ({ route }) => {
     switch (route.key) {
       case 'home':
@@ -55,10 +54,10 @@ export default function App() {
             navigationState={{ index, routes }}
             onIndexChange={setIndex}
             renderScene={renderScene}
-            barStyle={{ backgroundColor: '#121212' }} // Alaosan taustaväri
-            activeColor="#fff" // Aktiivisten ikonien ja tekstin väri
-            inactiveColor="#444444" // Passiivisten ikonien väri
-            activeIndicatorStyle={{ backgroundColor: '#121212', borderRadius: 20 }} // Aktiivisen tabin taustaväri
+            barStyle={{ backgroundColor: '#121212' }} 
+            activeColor="#fff" 
+            inactiveColor="#444444" 
+            activeIndicatorStyle={{ backgroundColor: '#121212', borderRadius: 20 }} 
           />
         </PaperProvider>
       </FavouritesProvider>
