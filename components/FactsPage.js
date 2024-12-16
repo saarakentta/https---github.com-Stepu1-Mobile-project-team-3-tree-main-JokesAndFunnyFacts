@@ -1,274 +1,155 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, Image, ScrollView, RefreshControl } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { FavouritesContext } from '../context/FavouritesContext';
 import { Share } from 'react-native';
+import Header from '../components/Header';
+import { globalStyles } from '../styles';
 
 const shareFact = async (fact) => {
-    try {
-        await Share.share({
-            message: `Here's an interesting fact: ${fact.text}`,
-        });
-    } catch (error) {
-        console.error('Error sharing fact:', error);
-    }
+  try {
+    await Share.share({
+      message: `Here's an interesting fact: ${fact.text}`,
+    });
+  } catch (error) {
+    console.error('Error sharing fact:', error);
+  }
 };
 
 const FactsPage = () => {
-    const { addFavourite } = useContext(FavouritesContext);
+  const { addFavourite } = useContext(FavouritesContext);
+  const [language, setLanguage] = useState('en');
+  const [amount, setAmount] = useState(1);
+  const [facts, setFacts] = useState([]);
+  const [isLanguageModalVisible, setLanguageModalVisible] = useState(false);
+  const [showImage, setShowImage] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-    const [language, setLanguage] = useState('en'); // Default language
-    const [amount, setAmount] = useState(1); // Default number of facts
-    const [facts, setFacts] = useState([]);
-    const [isLanguageModalVisible, setLanguageModalVisible] = useState(false);
+  const languages = [
+    { label: 'English', value: 'en' },
+    { label: 'German', value: 'de' },
+  ];
 
-    // Available languages
-    const languages = [
-        { label: 'English', value: 'en' },
-        { label: 'German', value: 'de' },
-    ];
+  const fetchFacts = async () => {
+    setShowImage(false);
+    try {
+      const fetchedFacts = [];
+      for (let i = 0; i < amount; i++) {
+        const response = await fetch(`https://uselessfacts.jsph.pl/random.json?language=${language}`);
+        const data = await response.json();
+        fetchedFacts.push({ text: data.text, id: `${data.id}-${i}` });
+      }
+      setFacts(fetchedFacts);
+    } catch (error) {
+      console.error('Error fetching facts:', error);
+      setFacts([{ text: 'Error fetching data. Please try again later.', id: 'error' }]);
+    }
+  };
 
-    const fetchFacts = async () => {
-        try {
-            const fetchedFacts = [];
-            for (let i = 0; i < amount; i++) {
-                const response = await fetch(`https://uselessfacts.jsph.pl/random.json?language=${language}`);
-                const data = await response.json();
-                fetchedFacts.push({ text: data.text, id: `${data.id}-${i}` });
-            }
-            setFacts(fetchedFacts);
-        } catch (error) {
-            console.error('Error fetching facts:', error);
-            setFacts([{ text: 'Error fetching data. Please try again later.', id: 'error' }]);
-        }
-    };
+  const saveToFavourites = (fact) => {
+    addFavourite({ ...fact, type: 'fact' });
+    alert('Fact saved to favourites!');
+  };
 
-    const saveToFavourites = (fact) => {
-        addFavourite(fact); // Update context and AsyncStorage
-        alert('Fact saved to favourites!');
-    };
+  const onRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setFacts([]);
+      setShowImage(true);
+      setRefreshing(false);
+    }, 1000);
+  };
 
-    return (
-        <View style={styles.container}>
-            <Text style={styles.header}>Random Fact Generator</Text>
+  return (
+    <View style={{ flex: 1 }}>
+      <Header title="Facts" />
+      <ScrollView
+        contentContainerStyle={globalStyles.factsScrollViewContainer}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        <View style={globalStyles.factsContainer}>
+          {showImage && (
+            <Image source={require('../assets/Einstein.png')} style={globalStyles.factsHeaderImage} />
+          )}
 
-             {/* Kuvan näyttäminen */}
-      <Image 
-        source={require('../assets/Einstein.png')} 
-        style={styles.headerImage} 
-      />
+          <Text style={globalStyles.factsLabel}>Select language:</Text>
+          <TouchableOpacity
+            style={globalStyles.factsDropdownButton}
+            onPress={() => setLanguageModalVisible(true)}
+          >
+            <Text style={globalStyles.factsDropdownText}>
+              {languages.find((lang) => lang.value === language)?.label || 'Select language'}
+            </Text>
+          </TouchableOpacity>
 
-            {/* Language Selection */}
-            <Text>Select language:</Text>
-            <TouchableOpacity
-                style={styles.dropdownButton}
-                onPress={() => setLanguageModalVisible(true)}
-            >
-                <Text style={styles.dropdownText}>
-                    {languages.find((lang) => lang.value === language)?.label || 'Select language'}
-                </Text>
-            </TouchableOpacity>
-
-            <Modal
-                visible={isLanguageModalVisible}
-                transparent={true}
-                animationType="slide"
-                onRequestClose={() => setLanguageModalVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        {languages.map((lang) => (
-                            <TouchableOpacity
-                                key={lang.value}
-                                style={styles.modalItem}
-                                onPress={() => {
-                                    setLanguage(lang.value);
-                                    setLanguageModalVisible(false);
-                                }}
-                            >
-                                <Text style={styles.modalItemText}>{lang.label}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                </View>
-            </Modal>
-
-            {/* Amount Selection */}
-            <Text style={styles.checkboxLabel}>Amount of facts:</Text>
-            <View style={styles.checkboxContainer}>
-                {[1, 2, 3].map((num) => (
-                    <TouchableOpacity
-                        key={num}
-                        style={[styles.checkbox, amount === num && styles.checkedCheckbox]}
-                        onPress={() => setAmount(num)}
-                    >
-                        <Text style={[styles.checkboxText, amount === num && styles.checkedText]}>
-                            {num}
-                        </Text>
-                    </TouchableOpacity>
+          <Modal
+            visible={isLanguageModalVisible}
+            transparent
+            animationType="slide"
+            onRequestClose={() => setLanguageModalVisible(false)}
+          >
+            <View style={globalStyles.factsModalOverlay}>
+              <View style={globalStyles.factsModalContent}>
+                {languages.map((lang) => (
+                  <TouchableOpacity
+                    key={lang.value}
+                    style={globalStyles.factsModalItem}
+                    onPress={() => {
+                      setLanguage(lang.value);
+                      setLanguageModalVisible(false);
+                    }}
+                  >
+                    <Text style={globalStyles.factsModalItemText}>{lang.label}</Text>
+                  </TouchableOpacity>
                 ))}
+              </View>
             </View>
+          </Modal>
 
-            {/* Generate Facts Button */}
-            <TouchableOpacity style={styles.generateButton} onPress={fetchFacts}>
-                <Text style={styles.generateButtonText}>Generate Facts</Text>
-            </TouchableOpacity>
+          <Text style={globalStyles.factsLabel}>Amount of facts:</Text>
+          <View style={globalStyles.factsCheckboxContainer}>
+            {[1, 2, 3].map((num) => (
+              <TouchableOpacity
+                key={num}
+                style={[
+                  globalStyles.factsCheckbox,
+                  amount === num && globalStyles.factsCheckedCheckbox,
+                ]}
+                onPress={() => setAmount(num)}
+              >
+                <Text
+                  style={[
+                    globalStyles.factsCheckboxText,
+                    amount === num && globalStyles.factsCheckedText,
+                  ]}
+                >
+                  {num}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-            {/* Display Facts */}
-            <FlatList
-    data={facts}
-    keyExtractor={(item) => item.id}
-    renderItem={({ item }) => (
-        <View style={styles.factContainer}>
-            <Text style={styles.fact}>{item.text}</Text>
-            <View style={styles.iconContainer}>
+          <TouchableOpacity style={globalStyles.factsGenerateButton} onPress={fetchFacts}>
+            <Text style={globalStyles.factsGenerateButtonText}>Generate Facts</Text>
+          </TouchableOpacity>
+
+          {facts.map((item) => (
+            <View style={globalStyles.factsContainerItem} key={item.id}>
+              <Text style={globalStyles.factsItemText}>{item.text}</Text>
+              <View style={globalStyles.factsIconContainer}>
                 <TouchableOpacity onPress={() => saveToFavourites(item)}>
-                    <FontAwesome name="star" size={24} color="#FFD700" />
+                  <FontAwesome name="star" size={24} color="#FF8C42" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => shareFact(item)}>
-                    <FontAwesome name="share-alt" size={24} color="#6200ee" />
+                  <FontAwesome name="share-alt" size={24} color="#FFA07A" />
                 </TouchableOpacity>
+              </View>
             </View>
+          ))}
         </View>
-    )}
-    ListEmptyComponent={<Text style={styles.noFacts}>No facts to display.</Text>}
-/>
-
-        </View>
-    );
+      </ScrollView>
+    </View>
+  );
 };
 
 export default FactsPage;
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingHorizontal: 20,
-        backgroundColor: '#fff',
-        justifyContent: 'center',
-        paddingTop: 100,
-    },
-    header: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#000',
-        marginBottom: 20,
-        textAlign: 'center',
-        paddingBottom: 30,
-    },
-    dropdownButton: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        backgroundColor: '#f9f9f9',
-        borderRadius: 5,
-        padding: 10,
-        width: '100%',
-        marginBottom: 15,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    dropdownText: {
-        fontSize: 16,
-        color: '#000',
-    },
-    checkboxLabel: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        textAlign: 'center',
-    },
-    checkboxContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginBottom: 15,
-    },
-    checkbox: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        borderWidth: 2,
-        borderColor: '#6200ee',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f9f9f9',
-    },
-    checkedCheckbox: {
-        backgroundColor: '#6200ee',
-    },
-    checkboxText: {
-        fontSize: 16,
-        color: '#6200ee',
-    },
-    checkedText: {
-        color: '#fff',
-    },
-    generateButton: {
-        backgroundColor: '#6200ee',
-        padding: 15,
-        borderRadius: 5,
-        width: '100%',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    generateButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    factContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: '#f9f9f9',
-        padding: 10,
-        marginBottom: 10,
-        borderRadius: 5,
-    },
-    fact: {
-        color: '#000',
-        flex: 1,
-        marginRight: 10,
-    },
-    noFacts: {
-        marginTop: 20,
-        textAlign: 'center',
-        fontSize: 16,
-        color: '#555',
-    },
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalContent: {
-        backgroundColor: '#fff',
-        padding: 20,
-        borderRadius: 10,
-        width: '80%',
-    },
-    modalItem: {
-        padding: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
-    },
-    modalItemText: {
-        fontSize: 16,
-        color: '#000',
-        textAlign: 'center',
-    },
-    headerImage: {
-        width: '105%', // Skaalaa kuvan leveyden
-        height: 120, // Korkeus
-        resizeMode: 'contain', // Säilyttää mittasuhteet
-        marginBottom: 20,
-      },
-      iconContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        gap: 15,
-    }
-    
-});
