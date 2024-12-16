@@ -83,6 +83,20 @@ export const globalStyles = StyleSheet.create({
     color: 'gray',
     marginBottom: 20,
   },
+  iconButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 15,
+    width: '60%',
+  },
+  iconButton: {
+    backgroundColor: '#f3f4f6',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    elevation: 2,
+  },
+  
 
   // FavouritesPage
   favouritesContainer: {
